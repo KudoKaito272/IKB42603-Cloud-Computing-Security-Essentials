@@ -17,15 +17,15 @@ The repository is organized by lab, with each lab containing its own report and 
 
 Planned lab folders and files for the full course:
 
-- `Lab 1 - Account Security and IAM/`
+- `Lab 1 - Account Security and IAM Report/`
   - Week 1
-- `Lab 2 - Secure Isolation and Multitenancy/`
+- `Lab 2 - Secure Isolation and Multitenancy Report/`
   - Week 2
-- `Lab 3 - Encryption and Key Management/`
+- `Lab 3 - Encryption and Key Management Report/`
   - Week 3
-- `Lab 4 - Access Control and Network Security/`
+- `Lab 4 - Access Control and Network Security Report/`
   - Week 4
-- `Lab 5 - Monitoring Logging and Incident Detection/`
+- `Lab 5 - Monitoring Logging and Incident Detection Report/`
   - Week 5
 
 ---
