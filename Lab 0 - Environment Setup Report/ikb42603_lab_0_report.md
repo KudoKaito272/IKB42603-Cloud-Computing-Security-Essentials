@@ -248,6 +248,8 @@ sudo docker rm -f localstack
 
 ![LocalStack verification screenshot](img/5-localstack-verify.png)
 
+![LocalStack verification screenshot](img/5-localstack-verify-desktop.png)
+
 ![LocalStack management start screenshot](img/5-localstack-manage-start.png)
 
 ![LocalStack management stop screenshot](img/5-localstack-manage-stop.png)
