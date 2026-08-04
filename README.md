@@ -13,12 +13,11 @@ This repository contains laboratory exercises completed during the IKB42603 cour
 The repository is organized by lab, with each lab containing its own report and supporting files.
 
 - `README.md` - This course-level repository overview.
-- `Lab 0 - Environment Setup Report/` - Lab 0 environment setup report.
+- `Lab 0 - Environment Setup Report/` - Week 1.
+- `Lab 1 - Account Security and IAM Report/` - Week 1
 
 Planned lab folders and files for the full course:
 
-- `Lab 1 - Account Security and IAM Report/`
-  - Week 1
 - `Lab 2 - Secure Isolation and Multitenancy Report/`
   - Week 2
 - `Lab 3 - Encryption and Key Management Report/`
