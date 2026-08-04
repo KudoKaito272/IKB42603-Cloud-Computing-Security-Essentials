@@ -103,13 +103,13 @@ aws $EP iam attach-group-policy --group-name Admins \
 
 ### Step 2.3: Create Personal Admin User
 ```bash
-aws $EP iam create-user --user-name CloudAdmin_dani
+aws $EP iam create-user --user-name CloudAdmin_Paan
 ```
 
 ### Step 2.4: Add User to Admins Group and Verify Membership
 ```bash
 aws $EP iam add-user-to-group --group-name Admins \
-    --user-name CloudAdmin_dani
+    --user-name CloudAdmin_Paan
 ```
 
 The membership was verified afterward to confirm that the admin permissions were inherited through the group.
