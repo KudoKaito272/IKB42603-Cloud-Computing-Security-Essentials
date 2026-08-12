@@ -15,13 +15,13 @@ The repository is organized by lab, with each lab containing its own report and 
 Planned lab folders and files for the full course:
 
 - [x] `README.md` - This course-level repository overview.
-- [x]`Lab 0 - Environment Setup Report/` - Week 1.
-- [x]`Lab 1 - Account Security and IAM Report/` - Week 1
-- [x]`Quiz` - Week 2
-- [x]`Lab 2 - Secure Isolation and Multitenancy Report/` - Week 3
-- []`Lab 3 - Encryption and Key Management Report/` - Week 4
-- []`Lab 4 - Access Control and Network Security Report/` - Week 5
-- []`Lab 5 - Monitoring Logging and Incident Detection Report/` - Week 6
+- [x] `Lab 0 - Environment Setup Report/` - Week 1.
+- [x] `Lab 1 - Account Security and IAM Report/` - Week 1
+- [x] `Quiz` - Week 2
+- [x] `Lab 2 - Secure Isolation and Multitenancy Report/` - Week 3
+- [] `Lab 3 - Encryption and Key Management Report/` - Week 4
+- [] `Lab 4 - Access Control and Network Security Report/` - Week 5
+- [] `Lab 5 - Monitoring Logging and Incident Detection Report/` - Week 6
 
 ---
 
