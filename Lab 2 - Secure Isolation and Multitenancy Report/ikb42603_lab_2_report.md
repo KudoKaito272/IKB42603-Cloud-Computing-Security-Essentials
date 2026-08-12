@@ -746,6 +746,8 @@ kind delete cluster --name ccse-lab2
 docker volume rm ccse-vol
 ```
 
+![Clean Up](img/CleanUp.png)
+
 ---
 
 ## Conclusion
