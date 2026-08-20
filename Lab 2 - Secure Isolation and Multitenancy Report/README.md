@@ -1,4 +1,3 @@
-# IKB42603 Cloud Computing Security Essentials
 # Lab 2: Secure Isolation & Multi-Tenancy Report
 
 ## Student Information
