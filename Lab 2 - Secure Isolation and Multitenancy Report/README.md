@@ -37,7 +37,7 @@ At the end of this lab, you will be able to:
 | Session | Week | Focus |
 |---------|------|-------|
 | **Session A** | Week 3 | Compute isolation: containers, namespaces, resource quotas, and the default-open risk (Tasks 1–3) |
-| **Session B** | Week 4 | Network & storage isolation: default-deny NetworkPolicy, per-tenant secrets, data remanence (Tasks 4–6), then the report |
+| **Session B** | Week 3 | Network & storage isolation: default-deny NetworkPolicy, per-tenant secrets, data remanence (Tasks 4–6), then the report |
 
 **Note:** Session A shows the problem (shared, open infrastructure). Session B applies the controls that make it safely separated. Keep outputs from both weeks for the report.
 
@@ -228,7 +228,7 @@ requests.memory     0     512Mi
 
 ---
 
-## Session B (Week 4) — Network & Storage Isolation
+## Session B (Week 3) — Network & Storage Isolation
 
 ### Task 4 — Default-Deny Network Isolation
 
