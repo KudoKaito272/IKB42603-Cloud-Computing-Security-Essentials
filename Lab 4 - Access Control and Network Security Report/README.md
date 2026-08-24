@@ -1889,6 +1889,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 #### Evidence
 
 ![Expansion 3.1: Istio installation and components](img/ex3.5.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `kubectl get pods -n istio-system` (istiod, ingress gateway, egress gateway)
 - `istioctl analyze -A` (showing successful verification)
@@ -1896,6 +1897,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 ---
 
 ![Expansion 3.2: Sidecar injection and pod status](img/ex3.9.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `kubectl get pods -n app` (both backend and client with 2/2 status)
 - `istioctl proxy-status` (both workloads listed as SYNCED)
@@ -1903,6 +1905,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 ---
 
 ![Expansion 3.3: STRICT mTLS policy configuration](img/ex3.12.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `kubectl get peerauthentication -n app` (policy name and mode)
 - `kubectl get peerauthentication default -n app -o yaml` (full policy definition)
@@ -1910,6 +1913,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 ---
 
 ![Expansion 3.4: Successful in-mesh communication](img/ex3.13.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `kubectl exec -n app client -c client -- curl -s http://backend` (successful response)
 - Backend service response with Server address and metadata
@@ -1917,6 +1921,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 ---
 
 ![Expansion 3.5: Out-of-mesh connection rejection (zero-trust enforcement)](img/ex3.25.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `kubectl exec -n app external-client -- \
   curl -i --max-time 5 http://backend.app.svc.cluster.local/` (connection timeout or refusal)
@@ -1925,6 +1930,7 @@ A compromised service inside the mesh still cannot impersonate another serviceâ€
 ---
 
 ![Expansion 3.6: Certificate and proxy verification](img/ex3.26.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `istioctl proxy-config secret client -n app` (showing workload certificates)
 - `istioctl proxy-config clusters client -n app | grep backend` (backend discovery)
