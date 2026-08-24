@@ -637,21 +637,25 @@ This expands the defense-in-depth strategy beyond network and host hardening. Wh
 #### Evidence
 
 ![Expansion 1.1: Containers running and services initialized](img/ex1.3.png)
+
 **Evidence placeholder:** Paste a screenshot showing `docker ps` output with both `waf` and `waf-backend` containers running.
 
 ---
 
 ![Expansion 1.2: Legitimate request forwarded (HTTP 200)](img/ex1.6.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of `curl -i http://localhost:8082/` with `HTTP/1.1 200 OK` status.
 
 ---
 
 ![Expansion 1.3: Malicious SQL injection request blocked (HTTP 403)](img/ex1.6.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of `curl -i "http://localhost:8082/?id=1%20OR%201%3D1"` with `HTTP/1.1 403 Forbidden` status.
 
 --- 
 
 ![Expansion 1.4: WAF logs showing ModSecurity detection](img/ex1.8.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of `docker logs waf` with entries indicating ModSecurity rule evaluation and blocking actions.
 
 ---
@@ -1273,6 +1277,7 @@ The ban mechanism uses the underlying host's iptables, making the block **networ
 #### Evidence
 
 ![Expansion 2.1: Nginx authentication and failed attempts](img/ex2.24.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of:
 - `curl -i http://localhost:8080/` (401 Unauthorized)
 - `curl -i -u student:'P@ssw0rd!' http://localhost:8080/` (200 OK)
@@ -1281,23 +1286,27 @@ The ban mechanism uses the underlying host's iptables, making the block **networ
 ---
 
 ![Expansion 2.2: Nginx access log showing 401 entries](img/ex2.20.png)
+
 **Evidence placeholder:** Paste a screenshot showing `cat nginx/log/access.log` with multiple 401 entries from the client IP.
 
 ---
 
 ![Expansion 2.3: Fail2ban jail status showing ban](img/ex2.16.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of:
 - `docker exec fail2ban fail2ban-client status nginx-auth` with `Currently banned: 1` and `Total banned: 1`
 
 ---
 
 ![Expansion 2.4: Banned IP](img/ex2.17.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `docker exec fail2ban fail2ban-client get nginx-auth banip` (banned IP address)
 
 ---
 
 ![Expansion 2.5: Filter test and Fail2ban logs](img/ex2.21.png)
+
 **Evidence placeholder:** Paste a screenshot showing the output of:
 - `docker exec fail2ban fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-auth.conf` (showing matched lines)
 
@@ -2396,6 +2405,7 @@ Minimal container images like this are used in production for:
 #### Evidence
 
 ![Expansion 4.1: Multi-stage Dockerfile with scratch runtime](img/ex4.5.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `cat Dockerfile` output
 - Multi-stage build structure (FROM busybox AS builder, FROM scratch)
@@ -2404,6 +2414,7 @@ Minimal container images like this are used in production for:
 ---
 
 ![Expansion 4.2: Successful image build](img/ex4.6.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `docker build -t ccse-hardened:distroless .` (successful build)
 - `docker images ccse-hardened` (image listed with size)
@@ -2411,6 +2422,7 @@ Minimal container images like this are used in production for:
 ---
 
 ![Expansion 4.3: Application running (HTTP 200 OK)](img/ex4.9.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `curl -i http://localhost:8081/` (HTTP/1.0 200 OK response)
 - HTML content displayed (Distroless Hardened Container heading)
@@ -2418,6 +2430,7 @@ Minimal container images like this are used in production for:
 ---
 
 ![Expansion 4.4: Comprehensive security verification](img/ex4.10.png)
+
 **Evidence placeholder:** Paste a screenshot showing all security settings:
 - User=65534:65534
 - ReadOnly=true
@@ -2428,7 +2441,9 @@ Minimal container images like this are used in production for:
 ---
 
 ![Expansion 4.5: Vulnerability scan comparison](img/ex4.14.png)
+
 ![Expansion 4.5: Vulnerability scan comparison](img/ex4.15.png)
+
 **Evidence placeholder:** Paste a screenshot showing:
 - `trivy image --severity HIGH,CRITICAL ccse-hardened:distroless` (result)
 - `trivy image --severity HIGH,CRITICAL nginx:alpine` (result for comparison)
