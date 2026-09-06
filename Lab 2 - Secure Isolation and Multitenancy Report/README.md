@@ -1,3 +1,4 @@
+# IKB42603 Cloud Computing Security Essentials
 # Lab 2: Secure Isolation & Multi-Tenancy Report
 
 ## Student Information
@@ -17,6 +18,7 @@ At the end of this lab, you will be able to:
 3. Implement network isolation with a default-deny NetworkPolicy and prove cross-tenant traffic is blocked.
 4. Enforce storage isolation so one tenant cannot read another tenant's data or secrets.
 5. Explain data remanence and demonstrate secure deletion.
+6. Apply Zero Trust controls by denying unnecessary egress and enforcing workload security at admission.
 
 ---
 
@@ -36,7 +38,7 @@ At the end of this lab, you will be able to:
 | Session | Week | Focus |
 |---------|------|-------|
 | **Session A** | Week 3 | Compute isolation: containers, namespaces, resource quotas, and the default-open risk (Tasks 1–3) |
-| **Session B** | Week 3 | Network & storage isolation: default-deny NetworkPolicy, per-tenant secrets, data remanence (Tasks 4–6), then the report |
+| **Session B** | Week 4 | Network & storage isolation: default-deny NetworkPolicy, per-tenant secrets, data remanence, egress control, and admission control (Tasks 4–6 and Z1–Z2), then the report |
 
 **Note:** Session A shows the problem (shared, open infrastructure). Session B applies the controls that make it safely separated. Keep outputs from both weeks for the report.
 
@@ -227,7 +229,7 @@ requests.memory     0     512Mi
 
 ---
 
-## Session B (Week 3) — Network & Storage Isolation
+## Session B (Week 4) — Network & Storage Isolation
 
 ### Task 4 — Default-Deny Network Isolation
 
@@ -365,6 +367,157 @@ wiped
 ![Task 6b: Secure Deletion (dd Overwrite)](img/7-Task6-1.png)
 
 ---
+
+## Session B Extension — Zero Trust Controls (Tasks Z1-Z2)
+
+The controls above establish namespace, ingress, resource, identity, and storage boundaries. This extension completes the Zero Trust model by denying unnecessary outbound traffic and refusing unsafe workloads before they start. Complete these tasks after Task 6 using the same `ccse-lab2` cluster.
+
+### Task Z1 — Egress Default-Deny
+
+**Objective:** Deny outbound traffic from `tenant-a` by default, then allow only DNS and the named service required by the workload.
+
+First record the unrestricted baseline:
+
+```bash
+# Baseline: cross-tenant egress is reachable before the policy
+kubectl -n tenant-a run probe --rm -it --restart=Never --image=busybox:1.36 -- \
+  sh -c "wget -qO- --timeout=3 http://web.tenant-b.svc.cluster.local || echo BLOCKED"
+```
+
+Apply the explicit egress allow-list:
+
+```bash
+cat <<'EOF' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: tenant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-and-api-only
+  namespace: tenant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              app: web
+      ports:
+        - protocol: TCP
+          port: 80
+EOF
+
+kubectl -n tenant-a get networkpolicy
+
+# Cross-tenant egress should now be blocked
+kubectl -n tenant-a run probe --rm -it --restart=Never --image=busybox:1.36 -- \
+  sh -c "wget -qO- --timeout=3 http://web.tenant-b.svc.cluster.local || echo BLOCKED"
+
+# The explicitly permitted in-namespace service should still work
+kubectl -n tenant-a run probe --rm -it --restart=Never --image=busybox:1.36 -- \
+  sh -c "wget -qO- --timeout=3 http://web.tenant-a.svc.cluster.local || echo BLOCKED"
+```
+
+**Expected Results:** The cross-tenant probe prints `BLOCKED`, while the permitted service remains reachable. Temporarily remove the DNS rule and repeat a probe to show that default-deny egress also blocks name resolution; restore the rule afterward. DNS is a separate dependency, so a missing DNS allow rule can look like a routing failure.
+
+**Evidence Screenshots:**
+
+![Task Z1.1: Egress baseline and blocked probe](img/Z-1-1.png)
+
+![Task Z1.2: Egress allow-list and permitted traffic](img/Z-1-2.png)
+
+![Task Z1.3: DNS dependency test](img/Z-1-3.png)
+
+![Task Z1.4: Egress policy verification](img/Z-1-4.png)
+
+### Task Z2 — Admission Control with Pod Security Standards
+
+**Objective:** Enforce the `restricted` Pod Security Standard so privileged workloads are rejected by the API server before they run.
+
+```bash
+kubectl label namespace tenant-a \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/enforce-version=latest \
+  pod-security.kubernetes.io/warn=restricted \
+  --overwrite
+
+kubectl get namespace tenant-a --show-labels
+
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-probe
+  namespace: tenant-a
+spec:
+  containers:
+    - name: probe
+      image: busybox:1.36
+      command: ["sleep", "3600"]
+      securityContext:
+        privileged: true
+EOF
+```
+
+**Expected Result:** The API server rejects the privileged pod and identifies the restricted requirements it violates. This is preventative control: the unsafe workload never starts.
+
+Prove that the policy is scoped rather than a blanket block:
+
+```bash
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compliant-probe
+  namespace: tenant-a
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: probe
+      image: busybox:1.36
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+EOF
+
+kubectl -n tenant-a get pod compliant-probe
+```
+
+**Evidence Screenshots:**
+
+![Task Z2.1: Restricted namespace labels and rejected privileged pod](img/Z-2-1.png)
+
+![Task Z2.2: Compliant pod admitted](img/Z-2-2.png)
+
+---
 ## Deliverables & Assessment
 
 ### Part 1 — Screenshots (Label Each Clearly)
@@ -379,6 +532,8 @@ The following screenshots provide evidence of all implemented controls:
 | Task 4 | Before/After comparison | ![Task 4 Comparison](img/5-Task4-1.png) |
 | Task 5 | The two `auth can-i` results proving secret isolation | ![Task 5 Evidence](img/6-Task5-1.png) |
 | Task 6 | The remanence scan and the secure-wipe output | (img/7-Task6-1.png) |
+| Task Z1 | Egress baseline, blocked cross-tenant probe, permitted traffic, and DNS failure test | ![Task Z1 Evidence](img/Z-1-1.png) ![Task Z1 Evidence](img/Z-1-2.png) ![Task Z1 Evidence](img/Z-1-3.png) ![Task Z1 Evidence](img/Z-1-4.png) |
+| Task Z2 | Restricted namespace labels, rejected privileged pod, and admitted compliant pod | ![Task Z2 Evidence](img/Z-2-1.png) ![Task Z2 Evidence](img/Z-2-2.png) |
 
 ---
 
@@ -515,9 +670,16 @@ kubectl get networkpolicy -A
 
 # Describe the ResourceQuota in tenant-a
 kubectl describe resourcequota tenant-a-quota -n tenant-a
+
+# Verify the Zero Trust extension controls
+kubectl -n tenant-a get networkpolicy -o custom-columns=NAME:.metadata.name,TYPES:.spec.policyTypes
+kubectl get namespace tenant-a -o jsonpath='{.metadata.labels}' | tr ',' '\n' | grep pod-security
+kubectl -n tenant-a get pods
 ```
 
 ![Verification Command](img/8-Verify-1.png)
+
+![Zero Trust Verification](img/Z-verify.png)
 
 ---
 
@@ -540,100 +702,13 @@ Use this checklist to verify all security controls are properly implemented:
 - [x] **Secure deletion / cryptographic erasure is understood for data remanence**  
       (dd overwrite executed; cloud best practice: destroy encryption keys)
 
----
+- [x] **Egress is denied by default and permitted traffic is explicitly allow-listed**  
+      (cross-tenant traffic is blocked; DNS and the required service remain available)
 
-## Extension Tasks (Optional)
-
-### Extension 1 — Egress Micro-Segmentation
-
-**Objective:** Deny all egress by default and whitelist only DNS and a specific cross-namespace service.
-
-**Commands:**
-```bash
-# Apply default-deny egress to tenant-a
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-egress
-  namespace: tenant-a
-spec:
-  podSelector: {}
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-        - namespaceSelector: {}
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              name: tenant-b
-          podSelector:
-            matchLabels:
-              app: backend
-      ports:
-        - protocol: TCP
-          port: 80
-EOF
-
-# This should FAIL (no internet access)
-kubectl -n tenant-a exec deploy/web -- wget -qO- https://google.com --timeout=3
-
-# This should FAIL (no access to other tenant-b pods unless labeled app=backend)
-kubectl -n tenant-a exec deploy/web -- wget -qO- http://web.tenant-b --timeout=3
-```
-
-**Expected Result:** Connection times out or is refused (egress denied).
-
-**Evidence Screenshot:** [Egress policy enforced]
-
-![Extension 1: Egress Micro-Segmentation](img/9-Expension1-1.png)
-
-![Extension 1: Egress Micro-Segmentation](img/9-Expension1-2.png)
+- [x] **The restricted Pod Security Standard is enforced at admission**  
+      (privileged pod rejected; compliant pod admitted)
 
 ---
-
-### Extension 2 — Pod Security Standards (Restricted)
-
-**Objective:** Enforce the `restricted` PSS profile to prevent privileged containers.
-
-**Commands:**
-```bash
-# Apply restricted Pod Security Standards
-kubectl label --overwrite namespace tenant-a \
-  pod-security.kubernetes.io/enforce=restricted \
-  pod-security.kubernetes.io/audit=restricted \
-  pod-security.kubernetes.io/warn=restricted
-
-kubectl label --overwrite namespace tenant-b \
-  pod-security.kubernetes.io/enforce=restricted \
-  pod-security.kubernetes.io/audit=restricted \
-  pod-security.kubernetes.io/warn=restricted
-
-# Try to create a privileged pod (should fail)
-kubectl -n tenant-a run bad-pod --image=nginx --restart=Never --privileged
-```
-
-**Expected Result:** Error from API server: `violates PodSecurity "restricted:latest"`
-
-**Observations:**
-- PSS prevents privileged containers, missing securityContext fields, etc.
-- Existing non-compliant pods are NOT terminated retroactively.
-- New pods must comply or creation fails.
-
-**Evidence Screenshot:** [PSS enforcement rejecting privileged pod]
-
-![Extension 1: Egress Micro-Segmentation](img/9-Expension2-1.png)
-
-![Extension 1: Egress Micro-Segmentation](img/9-Expension2-2.png)
-
----
-
 ### Extension 3 — Runtime Sandboxing with gVisor
 
 **Objective:** Install gVisor (`runsc`), register it as a `RuntimeClass`, and deploy a pod using the sandboxed runtime.
