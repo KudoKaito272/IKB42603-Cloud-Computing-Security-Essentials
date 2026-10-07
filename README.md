@@ -22,7 +22,7 @@ Planned lab folders and files for the full course:
 - [x] `Lab 3 - Encryption and Key Management Report/` - Week 4
 - [x] `Lab 4 - Access Control and Network Security Report/` - Week 5
 - [x] `Lab 5 - Monitoring Logging and Incident Detection Report/` - Week 6
-- [] `Lab 6 - Object Storage and Data Lifecycle Report/` - Week 7
+- [x] `Lab 6 - Object Storage and Data Lifecycle Report/` - Week 7
 
 ---
 
